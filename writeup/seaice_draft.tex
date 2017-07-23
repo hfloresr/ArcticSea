@@ -1,0 +1,170 @@
+\documentclass[12pt]{article}
+\usepackage{cite}
+\usepackage[cmex10]{amsmath}
+%\interdisplaylinepenalty=2500
+\usepackage{amsbsy}
+%\usepackage{algorithmic}
+\usepackage{tikz}
+\usetikzlibrary{shapes, shadows, arrows}
+\usepackage{url}
+\usepackage{natbib}
+
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{stfloats}
+\usepackage{wrapfig}
+
+\usepackage[top=1in, bottom=1in, left=1in, right=1in]{geometry}
+
+
+\begin{document}
+\date{}
+\def\spacingset#1{\renewcommand{\baselinestretch}%
+{#1}\small\normalsize} \spacingset{1}
+
+
+\title{\bf Time Series Analysis of Arctic Sea Ice}
+\author{Hector G. Flores Rodriguez\footnote{Department of Computer Science, University of California, Irvine, CA 92697, USA; \texttt{hfloresr@uci.edu}}, Hernando Ombao\footnote{Computer, Electrical and Mathematical Sciences and Engineering Division, King Abdullah University of Science and Technology, Thuwal 23955, Saudi Arabia; \texttt{hernando.ombao@kaust.edu.sa}}}
+\maketitle
+
+
+\bigskip
+\begin{abstract}
+TODO: abstract
+\end{abstract}
+
+\noindent%
+{\it Keywords:}  Climate modeling; Spline regression analysis; Global warming; Arctic sea ice concentration.
+\vfill
+
+
+\newpage
+\spacingset{2} % DON'T change the spacing!
+\section{Introduction}
+
+scientific issues, why is this important\\
+brief description of approach, summary of results
+
+
+\section{Linear Splines}
+
+In order to determine significant changes in linear trends, let us consider a linear spline model with $K$ change points, $\xi_1,\dots,\xi_K$, such that they lie on the axis of abscissas and that they represent either:
+  \begin{itemize}
+    \item significant change in time.
+    \item significant visual structural change in the data.
+  \end{itemize}
+We then define a linear spline basis function with change point at $\xi_k$ to be
+  \begin{equation*}
+    (t-\xi_{k})_{+} =
+      \begin{cases}
+      0,           & \text{if $t < \xi_{k}$} \\
+      (t-\xi_{k}), & \text{if $t \geq \xi_{k}$}
+      \end{cases}
+  \end{equation*}
+where $(t-\xi_k)_{+}$ is the positive part of the function since the "$+$" sets the function to zero for values of $t$ where $t-\xi_{k}$ is negative, illustrated in Figure~\ref{spline}. 
+\begin{figure}[!h]
+  \centering
+  \begin{tikzpicture}[scale=0.5]
+    \draw[->] (0,0) -- (4.8,0) node[right] {$x$}; 
+    \draw[->] (0,0) -- (0,2.7) node[above] {$y$};
+    \draw[blue] (0,0) -- (1,0);
+    \draw[->,blue] (1,0) node[black, below]{$\xi_1$} -- (2.5,1.5);
+    \draw[->,red] (2.5,0) node[black, below]{$\xi_2$} -- (4,1.5);
+    \draw[red] (1,0) -- (2.5,0);
+  \end{tikzpicture}
+  \caption{Linear spline basis.} \label{spline}
+\end{figure}
+
+
+\noindent
+To estimate the trend of sea ice concentration with respect to time, the following model is constructed
+\begin{align}
+  y_t &= \mu_t + s_t + \epsilon_t \label{eq:1}\\
+\intertext{where,
+  \begin{itemize}
+    \item $y_t$ is the observed dependent variable at time $t$
+    \item $\mu_t$ denotes the piecewise linear trend, from previous definition of linear splines, is defined to be
+  \end{itemize}}
+  \mu_t &= \beta_0 + \beta_{1}t + \sum_{k=1}^{K}b_{k}(t-\xi_k)_{+} \label{eq:2}\\
+\intertext{
+  \begin{itemize}
+    \item $s_t$ is the seasonality component, which is expressed as
+  \end{itemize}}
+  s_t &= \sum_{j=1}^{m}[\alpha_{j}cos(2\pi\omega_{j}t) + \delta_{j}sin(2\pi\omega_{j}t)] \label{eq:3}
+\end{align}
+\begin{itemize}
+  \item $\epsilon_t$ is the random component that accounts for temporal correlation in 
+    $\{y_t\}$.
+\end{itemize}
+
+\noindent
+In equation~(\ref{eq:2}), $\beta_0$, $\beta_1$, and $b_k \; (\text{for} \; k=1,\dots,K)$ are the corresponding linear trend coefficients for each spline. Note that when $b_k\neq0$, there is a change in the slope (linear trend) at time $\xi_k$.
+
+\subsection{Trend Analysis}
+In general, the change points, $\xi_1,\dots,\xi_K$, are unknown. However, we initially fixed a predefined a set of change points and its determination is later treated as a problem of model selection. The method of iteratively reweighted least squares (IRLS) is used to estimate the piecewise linear trend coefficients. To determine our optimal set of change points, we employed a backward selection approach to our initial set of $K$ candidate change points until all remaining change points had a significant p-value at the $5\%$ significance level.
+
+For further analysis, we removed the trends from our original series so that the detrended series can be expressed as 
+$$e_t = y_t - \hat{\mu_t}$$
+where, $\hat{\mu_t}$ is estimated by using the IRLS algorithm. By removing the piecewise regression line, we can further study the periodicity and temporal correlation since
+$$e_t \approx s_t + \epsilon_t$$
+where $e_t$ are the residuals after computing our estimates for the linear trend model and $s_t$ is the seasonality component described in equation~(\ref{eq:3}).
+
+\subsection{Spectral Analysis}
+The purpose of spectral analysis is to study oscilations present in the time series. In particular, we shall identify periodicity trends in the ice concentration. To pursue the investigation, we consider the set of harmonic frequencies
+$$\omega_j = \frac{j}{T} \qquad \text{for } \: j=1,\dots,T/2$$
+were $T$ is the number of time points in our data set. We then utilized an estimate of the power spectrum, $\hat{P}$, to identify the dominant harmonic frequencies in the time series. A simple and fast estimate of the power spectrum can be computed by the periodogram 
+$$\hat{P}(e^{j\omega}) = \sum_{h=-n+1}^{n-1} \hat{\gamma}(h)e^{-j \omega h}$$
+however, it has been shown that the periodogram is not a consistent estimator of the power spectrum density (PSD). Instead, we utilized Welch's method
+\begin{itemize}
+\item the residuals, $e_t$, are split into $K$ overlapping segments of length $L$
+\item apply Hanning window $w(n) = \frac{1}{2}({1} - {\cos{(2\pi\frac{n}{N})}})$ to each of the segments
+\item all $K$ periodograms are averaged
+\begin{align}
+\hat{P}_{welch}(e^{j\omega}) &= \frac{1}{K} \sum_{k=1}^{K} \hat{P}_{y}^{(k)}(e^{j\omega})\label{eqn:4}
+\intertext{where,}
+\hat{P}_{y}^{(k)} &= 
+			\frac{1}{N} \sum_{n=0}^{L-1} \left|w(n)y^{(k)}(n) e^{-j \omega n}\right|^{2}\nonumber
+\end{align}
+\end{itemize}
+
+To capture seasonal patterns, we consider the model in equation~(\ref{eq:3})
+where coefficients $\alpha_j$ and $\delta_j$ are estimated but the frequencies
+$\omega_j$ are obtained from the power spectrum estimate in equation~(\ref{eqn:4}). In our analysis, we chose the top five harmonic frequecies from the power spectrum estimate, and estimated the coefficients using the IRLS algorithm. Similarly to the trend analysis, we utilized a backward selection approach to our top five candidate harmonic frequencies until all remaining harmonics had a significant p-value at the $5\%$ significance level.
+
+The fitted seasonality component is then removed from our residuals, $e_t$, such that
+$$e^{*}_t = e_t - \hat{s}_t$$
+where, $\hat{s}_t$ is estimated via IRLS and using only the reamining significant harmonic frequencies. By removing the seasonality component, we can further investigate autoregressive (AR) models.
+
+\subsection{AR Models}
+A common approach for modeling univariate time series data is the autoregressive (AR) model
+$$y_t = \phi_{1}y_{t-1} + \phi_{2}y_{t-2} + \cdots + \phi_{p}y_{t-p} + \epsilon_t$$
+where $y_t$ is the stationary time series, $\epsilon_t$ is white noise, $\phi_1, \phi_2, \dots, \phi_p$ are constants ($\phi_p \neq 0$), and $p$ denotes the order of the AR process. The purpose of AR models are based on the idea that past values might predict current observations. The AR process models $y_t$ as a function of $p$ past observations, $y_{t-1}, y_{t-2}, \dots, y_{t-p}$. To determine the order, $p$, of our AR model, we initially analyze the plots for the autocorrelation function (ACF) and the partial autocorrelation function (PACF) of our detrended and deseasonalized series, $e^{*}_{t}$. From the ACF and PACF plots, we determine an initial set of models by examining the significance of each of the lags. We then fit the models and determine our final model according to Akaike information criterion (AIC) and Bayesian information criterion (BIC).
+
+
+\section{Analysis of Arctic Sea Ice Concentration}
+The autoregressive (AR) model is implemented on the sea ice concentration data set provided by the National Snow and Ice Data Center (NSIDC). We are interested in estimating the parameters for the changes in climate trends, seasonal patterns, and developing an AR model. Since the arctic sea ice data set spans a long range of years, various climate phenomonons that have occured in the past may greatly influence the trend in the series. The aim of our analysis is to investigate any correlation between any climate phenomenons and change points in our spline regression model and to detect whether global warming is a natural seasonal pattern or if there is any evidence that it may be human-induced.
+
+\subsection{Data}
+Describe the data
+
+\subsection{Summer and Winter Trends}
+Plot yearly averages, seasonal averages, and linear splines trends
+
+\subsection{Harmonic Regression}
+plot PSD, harmonic frequencies, 
+
+\subsection{Results}
+ACF/PACF plots, AR models, residual diagnostics\\
+Why are the results interesting\\
+How can the scientist use your results to inform them on their work\\
+Can your results be used to conirm some hypotheses?\\
+
+
+\section{Conclusion}
+limitations of current analysis\\
+next steps (further analysis)
+
+
+
+
+\end{document}
