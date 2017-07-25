@@ -28,3 +28,4 @@ data/
 *.blg
 *.dvi
 *.log
+*.synctex.gz
