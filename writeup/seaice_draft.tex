@@ -52,7 +52,7 @@ scientific issues, why is this important\\
 brief description of approach, summary of results
 
 
-\section{Linear Splines}
+\section{Linear Splines Trend Model}
 
 In order to determine significant changes in linear trends, let us consider a linear spline model with $K$ change points, $\xi_1,\dots,\xi_K$, such that they lie on the axis of abscissas and that they represent either:
   \begin{itemize}
@@ -180,7 +180,29 @@ Furthermore, the variability is significantly greater in the months JJA and SON 
 
 
 \subsection{Summer and Winter Trends}
-In Figure~\ref{seasonal_avgs}, we visually recognize interesting structural changes around the years: mid 1990's, late 1970's, 1940's, and early 1900's for each of the seasons. Our initial set of change points for our linear splines trend model in equation~\ref{eq:2}, are shown in 
+In Figure~\ref{seasonal_avgs}, we visually recognize interesting structural changes around the years: mid 1990's, late 1970's, 1940's, and early 1900's for each of the seasons. To determine our initial set of change points (CP), we utilized a non-parametric approach to change point detection, as outlined in~\citep{cps}. As our aim is to analyze any correlation between significant climate phenomenons, we also included time points where significant heat waves have been reported. As a starting point, our initial set of change points (CP) for our linear splines trend model in equation~(\ref{eq:2}), are
+\begin{align*}
+CP_{djf} &= \{1935, 1944, 1979, 1997\} \\
+CP_{mam} &= \{1896, 1929, 1935, 1953, 1979, 1997\} \\
+CP_{jja} &= \{1935, 1943, 1963,1979, 1997\} \\
+CP_{son} &= \{1915, 1950, 1979, 1997\}
+\end{align*}
+We then allowed our greedy backward selection algorithm determine which change points contributed to a significant trend for each season. At a significance level of $5\%$, the resulting significant change points are shown in Table~\ref{my_cps}
+
+\begin{table}[!htb]
+\centering
+\begin{tabular}{|c|c|}
+\hline
+\textbf{Season}       & \textbf{Change Points} \\ \hline\hline
+DJF & $\{1997\}$ \\ \hline
+MAM & $\{1933, 1979\}$ \\ \hline
+JJA & $\{1997\}$ \\ \hline
+SON & $\{1915, 1950, 1979, 1997\}$ \\ \hline
+\end{tabular}
+\caption{Resulting change points for linear spline model after multiple comparison test.}\label{my_cps}
+\end{table}
+
+
 
 Plot yearly averages, seasonal averages, and linear splines trends
 
