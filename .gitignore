@@ -21,3 +21,10 @@ data/
 
 # mkdocs documentation
 /site
+
+# latex
+*.aux
+*.bbl
+*.blg
+*.dvi
+*.log

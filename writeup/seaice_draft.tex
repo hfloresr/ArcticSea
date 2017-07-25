@@ -1,4 +1,7 @@
 \documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+
+
 \usepackage{cite}
 \usepackage[cmex10]{amsmath}
 %\interdisplaylinepenalty=2500
@@ -7,9 +10,12 @@
 \usepackage{tikz}
 \usetikzlibrary{shapes, shadows, arrows}
 \usepackage{url}
+%\usepackage{apalike}
 \usepackage{natbib}
 
 \usepackage{graphicx}
+\graphicspath{figs/}
+
 \usepackage{float}
 \usepackage{stfloats}
 \usepackage{wrapfig}
@@ -142,12 +148,40 @@ where $y_t$ is the stationary time series, $\epsilon_t$ is white noise, $\phi_1,
 
 
 \section{Analysis of Arctic Sea Ice Concentration}
-The autoregressive (AR) model is implemented on the sea ice concentration data set provided by the National Snow and Ice Data Center (NSIDC). We are interested in estimating the parameters for the changes in climate trends, seasonal patterns, and developing an AR model. Since the arctic sea ice data set spans a long range of years, various climate phenomonons that have occured in the past may greatly influence the trend in the series. The aim of our analysis is to investigate any correlation between any climate phenomenons and change points in our spline regression model and to detect whether global warming is a natural seasonal pattern or if there is any evidence that it may be human-induced.
+The autoregressive (AR) model is implemented on the sea ice concentration data set provided by the National Snow and Ice Data Center (NSIDC)~\citep{data}. We are interested in estimating the parameters for the changes in climate trends, seasonal patterns, and developing an AR model. Since the arctic sea ice data set spans a long range of years, various climate phenomonons that have occured in the past may greatly influence the trend in the series. The aim of our analysis is to investigate any correlation between any climate phenomenons and change points in our spline regression model and to detect whether global warming is a natural seasonal pattern or if there is any evidence that it may be human-induced.
 
-\subsection{Data}
-Describe the data
+\subsection{Data Analysis}
+The Arctic sea ice concentration data set consists of monthly ice concentration from the beginning of January 1850 to the end of December 2013. The ice concentration are given as a percent from 0 to 100, inclusive. The spatial resolution of the monthly ice concentration are given on a quarter-degree latitude by quarter-degree longitude grid. Prior to 1979, the historical observations come in many forms: ship observations, compilations by naval oceanographers, analyses by national ice services, and others. From 1979 and onward, sea ice concentration came from a single source: satellite passive microwave data.
+
+Our initial exploration of the data set was to aggregate the data into yearly averages to visualize how sea ice concentration changes from 1850 to 2013. As shown in Figure~\ref{yrly_avgs}, a slight oscillation in sea ice concentration appears during the beginning of the series. However, a clear trend in decreasing in ice concentration is visible following the years after 1990.
+
+\begin{figure}[!htbp]
+  \centering
+  \includegraphics[scale=0.37]{figs/yrly_avgs}
+  \caption{Yearly sea ice concentration averages.}\label{yrly_avgs}
+\end{figure}
+
+To further examine the decreasing trend, we decoupled the series into four seasons:
+\begin{itemize}
+\item December, January, February (DJF)
+\item March, April, May (MAM)
+\item June, July, August (JJA)
+\item September, October, November (SON)
+\end{itemize}
+
+By seperating the seasons, we can visually examine the time series for each season, as illustrated in Figure~\ref{seasonal_avgs}. Interestingly enough, the colder seasons (DJF and MAM) seem to be visually stable. Whereas the warmer seasons (JJA and SON) capture the sharp decreasing trend following the years after 1990.
+\begin{figure}[!htbp]
+  \centering
+  \includegraphics[scale=0.37]{figs/seasonal_avgs}
+  \caption{Seasonal sea ice concentration averages.}\label{seasonal_avgs}
+\end{figure}
+
+Furthermore, the variability is significantly greater in the months JJA and SON in comparison to DJF and MAM. With clear differences between the various series, we aim to determine where are the significant change points in each of the seasons and fit a regression model that can accurately capture the trends for each season.
+
 
 \subsection{Summer and Winter Trends}
+In Figure~\ref{seasonal_avgs}, we visually recognize interesting structural changes around the years: mid 1990's, late 1970's, 1940's, and early 1900's for each of the seasons. Our initial set of change points for our linear splines trend model in equation~\ref{eq:2}, are shown in 
+
 Plot yearly averages, seasonal averages, and linear splines trends
 
 \subsection{Harmonic Regression}
@@ -165,6 +199,7 @@ limitations of current analysis\\
 next steps (further analysis)
 
 
-
+\bibliographystyle{apalike}
+\bibliography{arctic_refs}
 
 \end{document}
