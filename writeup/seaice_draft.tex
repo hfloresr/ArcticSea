@@ -15,6 +15,7 @@
 
 \usepackage{graphicx}
 \graphicspath{figs/}
+\usepackage[export]{adjustbox}
 
 \usepackage{float}
 \usepackage{stfloats}
@@ -40,16 +41,20 @@ TODO: abstract
 \end{abstract}
 
 \noindent%
-{\it Keywords:}  Climate modeling; Spline regression analysis; Global warming; Arctic sea ice concentration.
+{\it Keywords:}  Climate modeling; Spline regression analysis; Arctic sea ice concentration; Change point analysis; Global warming.
 \vfill
 
 
 \newpage
 \spacingset{2} % DON'T change the spacing!
 \section{Introduction}
+The retreat of the Arctic sea ice is one of the most visible indicators of global climate change~\citep{zhang}. A potential reason as to why climate change is tied to the Arctic sea ice is hat climate change is amplified in the Arctic~\citep{pithan}. Consequence of changes in the global mean climate are more readily observed at high latitudes compared to middle and lower latititudes. Climate models are in near universal agreement that Arctic sea ice extent will decline through the 21st century in response to atmospheric greenhouse gas (GHG) loading (Zhang?). Through fostering large heat fluxes to the atmosphere, delayed autumn and winter ice growth will promote increases in surface air temperature (SAT) over the Arctic Ocean that are outsized compared to teh globe as a whole. Ice loss will also likely influence mid-latitude patterns of atmospheric circulation.
+
+From 1953 to 2006 Arctic sea ice extent at the end of the summer melt season in September has declined at a rate of -7.8\% decade. Over the period of modern satellite observations (1979 to 2006) the trend is even larger. Trends for March while much smaller, are also downward.
 
 scientific issues, why is this important\\
-brief description of approach, summary of results
+brief description of approach, summary of results\\
+make sure intro takes 1 page\\
 
 
 \section{Linear Splines Trend Model}
@@ -148,7 +153,7 @@ where $y_t$ is the stationary time series, $\epsilon_t$ is white noise, $\phi_1,
 
 
 \section{Analysis of Arctic Sea Ice Concentration}
-The autoregressive (AR) model is implemented on the sea ice concentration data set provided by the National Snow and Ice Data Center (NSIDC)~\citep{data}. We are interested in estimating the parameters for the changes in climate trends, seasonal patterns, and developing an AR model. Since the arctic sea ice data set spans a long range of years, various climate phenomonons that have occured in the past may greatly influence the trend in the series. The aim of our analysis is to investigate any correlation between any climate phenomenons and change points in our spline regression model and to detect whether global warming is a natural seasonal pattern or if there is any evidence that it may be human-induced.
+The autoregressive (AR) model is implemented on the sea ice concentration data set provided by the National Snow and Ice Data Center (NSIDC)~\citep{data}. We are interested in estimating the parameters for the changes in climate trends, seasonal patterns, and developing an AR model. Since the Arctic sea ice data set spans a long range of years, various climate phenomonons that have occured in the past may greatly influence the trend in the series. The aim of our analysis is to investigate any correlation between any climate phenomenons and change points in our spline regression model and to detect whether global warming is a natural seasonal pattern or if there is any evidence that it may be human-induced.
 
 \subsection{Data Analysis}
 The Arctic sea ice concentration data set consists of monthly ice concentration from the beginning of January 1850 to the end of December 2013. The ice concentration are given as a percent from 0 to 100, inclusive. The spatial resolution of the monthly ice concentration are given on a quarter-degree latitude by quarter-degree longitude grid. Prior to 1979, the historical observations come in many forms: ship observations, compilations by naval oceanographers, analyses by national ice services, and others. From 1979 and onward, sea ice concentration came from a single source: satellite passive microwave data.
@@ -182,10 +187,10 @@ Furthermore, the variability is significantly greater in the months JJA and SON 
 \subsection{Summer and Winter Trends}
 In Figure~\ref{seasonal_avgs}, we visually recognize interesting structural changes around the years: mid 1990's, late 1970's, 1940's, and early 1900's for each of the seasons. To determine our initial set of change points (CP), we utilized a non-parametric approach to change point detection, as outlined in~\citep{cps}. As our aim is to analyze any correlation between significant climate phenomenons, we also included time points where significant heat waves have been reported. As a starting point, our initial set of change points (CP) for our linear splines trend model in equation~(\ref{eq:2}), are
 \begin{align*}
-CP_{djf} &= \{1935, 1944, 1979, 1997\} \\
-CP_{mam} &= \{1896, 1929, 1935, 1953, 1979, 1997\} \\
-CP_{jja} &= \{1935, 1943, 1963,1979, 1997\} \\
-CP_{son} &= \{1915, 1950, 1979, 1997\}
+CP_{djf} &= \{1935, 1944, 1980, 1997\} \\
+CP_{mam} &= \{1896, 1929, 1935, 1953, 1980, 1997\} \\
+CP_{jja} &= \{1917, 1943, 1963,1979, 1997\} \\
+CP_{son} &= \{1915, 1950, 1980, 1997\}
 \end{align*}
 We then allowed our greedy backward selection algorithm determine which change points contributed to a significant trend for each season. At a significance level of $5\%$, the resulting significant change points are shown in Table~\ref{my_cps}
 
@@ -195,31 +200,103 @@ We then allowed our greedy backward selection algorithm determine which change p
 \hline
 \textbf{Season}       & \textbf{Change Points} \\ \hline\hline
 DJF & $\{1997\}$ \\ \hline
-MAM & $\{1933, 1979\}$ \\ \hline
-JJA & $\{1997\}$ \\ \hline
-SON & $\{1915, 1950, 1979, 1997\}$ \\ \hline
+MAM & $\{1935, 1980\}$ \\ \hline
+JJA & $\{1917, 1943,1997\}$ \\ \hline
+SON & $\{1915, 1950, 1980, 1997\}$ \\ \hline
 \end{tabular}
 \caption{Resulting change points for linear spline model after multiple comparison test.}\label{my_cps}
 \end{table}
 
+The linear spline trends for summer months are shown in Figure~\ref{trends}
 
+\begin{figure}[!htbp]
+  \includegraphics[width=1\textwidth,center]{figs/trends}
+  \caption{Seasonal sea ice concentration averages.}\label{trends}
+\end{figure}
 
-Plot yearly averages, seasonal averages, and linear splines trends
+After fitting each season, we detrended each of the series by removing the fitted linear spline regression model from the original data to further study the periodicity of the Arctic ice concentration.
 
 \subsection{Harmonic Regression}
-plot PSD, harmonic frequencies, 
+The goal of harmonic regression is to first determine the dominant frequencies from our estimated power spectrum. Using the top frequencies for each season, we can estimate our seasonality component of our model, as presented in equation~(\ref{eq:3}).
+
+\begin{figure}[!htbp]
+  \centering
+  \includegraphics[width=1\textwidth,center]{figs/psd}
+  \caption{Power spectrum for DJF, MAM, JJA, and SON.}\label{psd}
+\end{figure}
+
+The power spectrum for the warmer months differ vastly from the colder months. This result is consistent with the Figure~\ref{seasonal_avgs}, where the variability is much greater in the warmer months. Although the power spectrum estimates capture a lot of noise, we can use the top five dominant frequencies and determine the most prevalent harmonic components using a greedy backward selection, with a significance level of $5\%$.
+
+\begin{table}[!htb]
+\centering
+\begin{tabular}{|c|c|}
+\hline
+\textbf{Season}       & \textbf{Harmonic Frequencies} \\ \hline\hline
+DJF & $\cos(\omega_2), \cos(\omega_{11})$ \\ \hline
+MAM & $\sin(\omega_2), \cos(\omega_2), \sin(\omega_{13}), \cos(\omega_{19})$ \\ \hline
+JJA & $\sin(\omega_3), \cos(\omega_3), \sin(\omega_{10}), \cos(\omega_{10})$ \\ \hline
+SON & $\sin(\omega_5), \cos(\omega_5)$ \\ \hline
+\end{tabular}
+\caption{Resulting harmonic components after multiple comparison test.}\label{my_harmonics}
+\end{table}
+
+The significant harmonics in Table~\ref{my_harmonics} are used to estimate the seasonality component of each season. We then remove the seasonality component from our residuals, resulting in a detrended and deseasonalized series, equation~(\ref{eqn:4}). With the deaseasonalized residuals, we can then proceed to developing ARMA models and determine the best model that captures the structure in the Arctic ice concentration.
+
+\subsection{Arctic Ice AR Modeling}
+The goal of developing an autoregressive model for the Arctic sea ice concentration is to determine if the present values can be plausibly modeled in terms of the past values. The process of selecting our final model begins with the investigation of the ACF and PACF of our residuals. The ACF and PACF will enable us to see if there is any structure that might suggest the type of model to use along with the order of the model.
+
+\begin{figure}[!htbp]
+  \includegraphics[width=1\textwidth,left]{figs/acfs}
+  \caption{DJF - ACF and PACF}\label{acfs}
+\end{figure}
+
+
+Figure~\ref{acfs} suggest AR(1) and AR(2). However, the ACF and PACF for SON has no significant lag values. Regardless, we fitted an: AR(1), AR(2), AR(3), and ARMA(2,1) for all seasons. Both AIC and BIC were used in our model selection. The resulting models were AR(2) for all seasons.
 
 \subsection{Results}
-ACF/PACF plots, AR models, residual diagnostics\\
-Why are the results interesting\\
-How can the scientist use your results to inform them on their work\\
-Can your results be used to conirm some hypotheses?\\
+A fundamental procedure in time series analysis is testing whether a series is white noise or its process contains a more complex structure. The Ljung-Box test, a well known procedure for checking whether a sequence is white noise or not, is defined as
+$$Q = n(n+2)\sum_{k=1}^{h} \frac{\hat{\rho}_{k}^{2}}{n-k}$$
+where $n$ is the sample size, $\hat{\rho}_k$ is the sample autocorrelation at lag $k$, and $h$ is the number of lags being tested.
 
+To ensure our models were appropriate (i.e., good estimates of  trend and periodicity), we tested the residuals for ”whiteness” by:
+\begin{itemize}
+\item Analyzing the ACF and PACF plots for the residuals
+\item Performing the Ljung-Box test for up to 10 lags
+\item QQ plot for visually checking for normality
+\end{itemize}
+
+
+\begin{figure}[!htbp]
+  \centering
+  \includegraphics[width=1\textwidth,center]{figs/djf_res}
+  \caption{JJA - ACF and PACF}\label{djf_res}
+\end{figure}
+
+\begin{figure}[!htbp]
+  \includegraphics[width=1\textwidth,center]{figs/mam_res}
+  \caption{JJA - ACF and PACF}\label{mam_res}
+\end{figure}
+
+\begin{figure}[!htbp]
+  \centering
+  \includegraphics[width=1\textwidth,center]{figs/jja_res}
+  \caption{JJA - ACF and PACF}\label{jja_res}
+\end{figure}
+
+\begin{figure}[!htbp]
+  \centering
+  \includegraphics[width=1\textwidth,center]{figs/son_res}
+  \caption{JJA - ACF and PACF}\label{son_res}
+\end{figure}
+
+The Ljung-Box test for JJA and SON suggest that there is not enough evidence that the residuals of our AR(2) models esemble white noise, hence they exhibit serial correlation. However for DJF and MAM, there is significant evidence that our AR(2) models resemble white noise after certain lags.
+
+The residuals for DJF suggest white noise for lags 1 through 10. For MAM, there is an oscilitaing pattern of whiteness for each lag.
+
+The results of our models capture the majority of the structure for DJF and MAM. However, the residuals for JJA and SON suggest a more complex mean or dependence structure.
 
 \section{Conclusion}
-limitations of current analysis\\
-next steps (further analysis)
-
+In summary, we have demonstrated the use of non-parametric change point detection to detect interesting climate phenomenons that lead to significant changes in climate trend. Linear spline regression was used to capture the linear trend in the Arctic sea ice concentration. This resulted in detrending our series to investigate the periodicity. We have found that the retreat of the Arctic sea ice has a dominant frequency of 1 every 42 years for JJA.
 
 \bibliographystyle{apalike}
 \bibliography{arctic_refs}
