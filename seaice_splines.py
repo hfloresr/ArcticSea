@@ -6,10 +6,20 @@ import numpy as np
 import statsmodels.api as sm
 import statsmodels.sandbox.stats.multicomp as smm
 
+import matplotlib
+matplotlib.rcParams['text.usetex'] = True
+matplotlib.rcParams['text.latex.unicode'] = True
 import matplotlib.pyplot as plt
 import seaborn as sns
 current_palette = sns.color_palette("hls", 8)
 sns.set_palette(current_palette)
+
+try:
+    from pyearth import Earth as earth
+    USE_MARS = True
+except ImportError:
+    print('Cannot import pyearth, using linear_splines')
+    USE_MARS = False
 
 
 # Color map
@@ -24,13 +34,15 @@ class SeaiceSplines(object):
         super(SeaiceSplines, self).__init__()
         self.data = data
         self.nyrs = len(data)
-        self.yrs = list(range(1850, 2014))
-        self.preds = None
-        self.pvals = None
-        self.reject = None
-        self.pvals_corr = None
+        self.yrs = list(range(1850, self.nyrs + 1850))
+        #self.preds = None
+        #self.pvals = None
+        #self.reject = None
+        #self.pvals_corr = None
 
-    def fit(self, knots):
+    def fit(self, knots, mars=False):
+        if mars and USE_MARS:
+            return self._fit_mars()
         return self._linear_splines(knots)
 
     def plot(self, season=None, ax=None):
@@ -64,6 +76,16 @@ class SeaiceSplines(object):
         self.pvals = fit.pvalues
         return fit
 
+    def _fit_mars():
+        y = self.data[:, np.newaxis]
+        x = self.yrs[:, np.newaxis]
+
+        model = earth(penalty=3, minspan_alpha=0.05, endspan_alpha=0.05)
+        model.fit(x, y)
+        self.preds = model.predict(x)
+        self.knots = {int(bf.get_knot())
+                      for bf in model.basis_ if bf.has_knot() and not bf.is_pruned()}
+
     def _plot_splines(self, preds, season='Season', col='g', ax=None):
         if ax is None:
             ax = plt.gca()
@@ -72,7 +94,7 @@ class SeaiceSplines(object):
                       color='k', linestyle=':')
         ax.plot(self.yrs, preds, label='trend', color=col, linewidth=2.5)
         #ax.legend(bbox_to_anchor=(.95, 0.8), loc='upper left', fontsize=14)
-        ax.legend(loc='upper right', fontsize=14)
+        ax.legend(loc='upper left', fontsize=14)
         ax.set_xlim(1845, 2016)
         ax.set_xlabel(r'Year', fontsize=17)
         ax.set_ylabel(r'Sea Ice Concentration [\%]', fontsize=17)
